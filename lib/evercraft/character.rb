@@ -38,7 +38,7 @@ module Evercraft
 
   		@experience = 0
   		@level = 1
-  		@attack_modifier = 0
+  		@attack_modifier = calculate_attack_modifier(@level)
   	end
 
   	def add_points(value)
@@ -92,7 +92,7 @@ module Evercraft
   		
   		puts "Attack successful? #{success}"
 
-  		damage = calculate_damage(critical_hit).to_i
+  		damage = calculate_damage(opponent, critical_hit).to_i
   		damage = 1 if damage <= 0
 
   		opponent.damage(damage) if success
@@ -101,7 +101,7 @@ module Evercraft
   		success
   	end
 
-  	def calculate_damage(critical_hit = false)
+  	def calculate_damage(opponent, critical_hit)
 			if critical_hit
 				2 + (modifier(:strength) * 2)
 			else

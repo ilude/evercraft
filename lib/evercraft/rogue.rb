@@ -1,6 +1,6 @@
 module Evercraft
   class Rogue < Character
-   	def calculate_damage(critical_hit)
+   	def calculate_damage(opponent, critical_hit)
 			if critical_hit
 				3 + (modifier(:strength) * 3)
 			else

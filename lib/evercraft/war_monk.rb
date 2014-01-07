@@ -8,7 +8,7 @@ module Evercraft
   		@armor_class + modifier(:dexterity) + modifier(:wisdom)
   	end
 
-  	def calculate_damage(critical_hit)
+  	def calculate_damage(opponent, critical_hit)
 			if critical_hit
 				6 + (modifier(:strength) * 2)
 			else
