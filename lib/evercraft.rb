@@ -1,3 +1,5 @@
 require "evercraft/version"
 require "evercraft/invalid_argument"
 require "evercraft/character"
+require "evercraft/fighter"
+require "evercraft/rogue"

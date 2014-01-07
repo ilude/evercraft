@@ -1,6 +1,7 @@
 module Evercraft
   class Character
-  	attr_accessor :name, :alignment, :armor_class, :hit_points
+  	attr_reader :damage, :level
+  	attr_accessor :name, :alignment, :armor_class, :hit_points, :experience, :attack_modifier
   	#attr_accessor :strength, :dexterity, :constitution, :wisdom, :intelligence, :charisma
 
 
@@ -18,32 +19,48 @@ module Evercraft
 	  			raise InvalidArgument if value <= 0 || value > 20
 	  			instance_variable_set(("@#{ability}").to_sym, value)
 	  		end
-
-	  		# Set default value to 10
-	  		#instance_variable_set("@#{ability}".to_sym, 10)
   		end
   	end
 
   	ability :strength, :dexterity, :constitution, :wisdom, :intelligence, :charisma
-  
+
   	def initialize()
   		@name = 'unknown'
   		@alignment = :neutral
   		@armor_class = 10
-  		@hit_points = 5
-
-  		#self.create_abilities
 
   		@@abilities.each do |ability|
 				self.send(ability.to_s + '=', 10)  			
   		end
 
-  		#@strength = 10
-  		#@dexterity = 10
-  		#@constitution = 10
-  		#@wisdom = 10
-  		#@intelligence = 10
-  		#@charisma = 10
+  		@damage = 0
+  		self.hit_points = 5
+
+  		@experience = 0
+  		@level = 1
+  		@attack_modifier = 0
+  	end
+
+  	def add_points(value)
+  		@hit_points += value + modifier(:constitution)
+  	end
+
+  	def add_attack_modifier(value)
+  		@attack_modifier += value
+  	end
+
+  	def hit_points
+  		effective_hit_points = @hit_points + modifier(:constitution)
+  		effective_hit_points = effective_hit_points < 1 ? 1 : effective_hit_points
+  		effective_hit_points - @damage 
+  	end
+
+  	def hit_points_per_level
+  		5
+  	end
+
+  	def damage(value)
+  		@damage += value
   	end
 
   	def alignment=(val)
@@ -56,46 +73,61 @@ module Evercraft
   	end
 
   	def armor_class
-  		@armor_class + modifier(:dexterity)
+  		@armor_class
   	end
 
-  	def hit_points
-  		@hit_points + modifier(:constitution)
-  		@hit_points = @hit_points < 1 ? 1 : @hit_points 
+  	def calculated_armor_class(opponent)
+  		opponent.armor_class + opponent.modifier(:dexterity)
+  	end
+
+  	def modified_attack_roll(attack_dice_value)
+  		attack_dice_value + modifier(:strength)
   	end
 
   	def attack(opponent, attack_dice_value)
   		# check for critical hit
   		critical_hit = attack_dice_value == 20
 
-  		modified_attack_roll = attack_dice_value + modifier(:strength)
-  		success = opponent.armor_class <= modified_attack_roll
+  		success = calculated_armor_class(opponent) <= modified_attack_roll(attack_dice_value)
   		
   		puts "Attack successful? #{success}"
 
-  		damage = 0
-  		if success
-  			if critical_hit
-  				puts "Critical Hit!"
-  				damage = 2 + (modifier(:strength) * 2)
-  			else
-  				damage = 1 + modifier(:strength)  				
-  			end
+  		damage = calculate_damage(critical_hit).to_i
+  		damage = 1 if damage <= 0
 
-  			damage = 1 if damage <= 0 
-  		end
+  		opponent.damage(damage) if success
+  		@experience += 10 if success
 
-  		puts "Damage: #{damage}"
-
-  		opponent.hit_points -= damage
-
-  		#opponent.hit_points -= 1 + modifier(:strength) if success?
-  		#opponent.hit_points -= 1 if critical_hit?
   		success
   	end
 
+  	def calculate_damage(critical_hit = false)
+			if critical_hit
+				2 + (modifier(:strength) * 2)
+			else
+				1 + modifier(:strength)  				
+			end
+  	end
+
+  	def add_experience(amount)
+  		@experience += amount
+
+  		calculated_level = (@experience / 1000).to_i + 1
+  		if(calculated_level > @level) 
+  			level_change = calculated_level - @level
+  			add_points(hit_points_per_level * level_change)
+  			#add_attack_modifier((level_change / 2).to_i)
+  			@attack_modifier = calculate_attack_modifier(calculated_level)
+  			@level = calculated_level
+  		end
+  	end
+
+  	def calculate_attack_modifier(level)
+  		(level / 2).floor
+  	end
+
   	def alive?
-			@hit_points > 0  		
+			hit_points > 0  		
   	end
 
   	def modifier(ability)
