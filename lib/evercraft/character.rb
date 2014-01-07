@@ -34,7 +34,7 @@ module Evercraft
   		end
 
   		@damage = 0
-  		self.hit_points = 5
+  		self.hit_points = hit_points_per_level
 
   		@experience = 0
   		@level = 1
@@ -73,11 +73,11 @@ module Evercraft
   	end
 
   	def armor_class
-  		@armor_class
+  		@armor_class + modifier(:dexterity)
   	end
 
   	def calculated_armor_class(opponent)
-  		opponent.armor_class + opponent.modifier(:dexterity)
+  		opponent.armor_class 
   	end
 
   	def modified_attack_roll(attack_dice_value)

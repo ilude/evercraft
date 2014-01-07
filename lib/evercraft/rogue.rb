@@ -11,9 +11,9 @@ module Evercraft
   	def calculated_armor_class(opponent)
   		opponent_dex_modifier = opponent.modifier(:dexterity)
   		if opponent_dex_modifier > 0
+  			opponent.armor_class - opponent_dex_modifier
+  		else
   			opponent.armor_class
-	  	else
-	  		super(opponent)
 	  	end
   	end
 

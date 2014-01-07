@@ -10,6 +10,6 @@ describe Evercraft::Fighter do
 	it "gains 10 hit points per level instead of 5" do
 		subject.add_experience(2000)
 		subject.level.should eql 3
-		subject.hit_points.should eql 25
+		subject.hit_points.should eql 30
 	end
 end

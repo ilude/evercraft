@@ -44,5 +44,4 @@ describe Evercraft::Rogue do
 		subject.attack(opponent, attack_dice).should be_false		
 	end
 
-	
 end
